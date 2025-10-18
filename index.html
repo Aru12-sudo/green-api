@@ -115,10 +115,20 @@
         if (phone.startsWith('7') && phone.length === 11) {
             const formattedPhone = `${phone}@c.us`;  // Форматируем номер в правильный формат для chatId
             const fileUrl = prompt('Введите URL файла');
+            const fileName = prompt('Введите имя файла (например, file.jpg)');
+            
+            // Проверка на обязательность имени файла
+            if (!fileName) {
+                alert('Имя файла обязательно');
+                return;
+            }
+
             const body = {
                 "chatId": formattedPhone,  // Используем отформатированный chatId
-                "file": fileUrl
+                "file": fileUrl,  // URL файла
+                "fileName": fileName  // Имя файла
             };
+
             makeRequest('sendFileByUrl', 'POST', body);
         } else {
             alert('Номер телефона должен начинаться с 7 и содержать 11 цифр');
