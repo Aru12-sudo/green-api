@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тестовое задание - Специалист технической поддержки 2 линии</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        input, button {
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        .response-box {
+            width: 100%;
+            height: 200px;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Тестовое задание - Специалист технической поддержки 2 линии</h1>
+
+<p>Введите параметры подключения к инстансу:</p>
+<input type="text" id="idInstance" placeholder="Введите idInstance" style="width: 200px;" />
+<input type="text" id="apiToken" placeholder="Введите ApiTokenInstance" style="width: 200px;" />
+
+<div>
+    <button id="btnGetSettings">Получить настройки (getSettings)</button>
+    <button id="btnGetStateInstance">Получить состояние инстанса (getStateInstance)</button>
+    <button id="btnSendMessage">Отправить сообщение (sendMessage)</button>
+    <button id="btnSendFileByUrl">Отправить файл (sendFileByUrl)</button>
+</div>
+
+<h3>Ответ от API:</h3>
+<div class="response-box" id="responseBox" readonly></div>
+
+<script>
+    // Функция для отправки запросов
+    function makeRequest(endpoint, method, body = null) {
+        const idInstance = document.getElementById('idInstance').value;
+        const apiToken = document.getElementById('apiToken').value;
+        const url = `https://api.green-api.com/waInstance${idInstance}/${endpoint}/${apiToken}`;
+
+        const options = {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: body ? JSON.stringify(body) : null
+        };
+
+        fetch(url, options)
+            .then(response => response.json())
+            .then(data => displayResponse(data))
+            .catch(error => displayError(error));
+    }
+
+    // Функция для отображения ответа
+    function displayResponse(data) {
+        const responseBox = document.getElementById('responseBox');
+        responseBox.textContent = JSON.stringify(data, null, 2);
+    }
+
+    // Функция для отображения ошибок
+    function displayError(error) {
+        const responseBox = document.getElementById('responseBox');
+        responseBox.textContent = `Ошибка: ${error.message}`;
+    }
+
+    // Обработчики событий для кнопок
+    document.getElementById('btnGetSettings').addEventListener('click', function() {
+        makeRequest('getSettings', 'GET');
+    });
+
+    document.getElementById('btnGetStateInstance').addEventListener('click', function() {
+        makeRequest('getStateInstance', 'GET');
+    });
+
+    document.getElementById('btnSendMessage').addEventListener('click', function() {
+        let phone = prompt('Введите номер телефона получателя (например, 87084854647)');
+        
+        // Убираем все символы, кроме цифр
+        phone = phone.replace(/\D/g, '');
+        
+        // Проверяем, что номер начинается с 7 (для Казахстана) и имеет 11 цифр
+        if (phone.startsWith('7') && phone.length === 11) {
+            const formattedPhone = `${phone}@c.us`;  // Форматируем номер в правильный формат для chatId
+            const message = prompt('Введите текст сообщения');
+            const body = {
+                "chatId": formattedPhone,  // Используем отформатированный chatId
+                "message": message
+            };
+            makeRequest('sendMessage', 'POST', body);
+        } else {
+            alert('Номер телефона должен начинаться с 7 и содержать 11 цифр');
+        }
+    });
+
+    document.getElementById('btnSendFileByUrl').addEventListener('click', function() {
+        let phone = prompt('Введите номер телефона получателя (например, 87084854647)');
+        
+        // Убираем все символы, кроме цифр
+        phone = phone.replace(/\D/g, '');
+        
+        // Проверяем, что номер начинается с 7 (для Казахстана) и имеет 11 цифр
+        if (phone.startsWith('7') && phone.length === 11) {
+            const formattedPhone = `${phone}@c.us`;  // Форматируем номер в правильный формат для chatId
+            const fileUrl = prompt('Введите URL файла');
+            const body = {
+                "chatId": formattedPhone,  // Используем отформатированный chatId
+                "file": fileUrl
+            };
+            makeRequest('sendFileByUrl', 'POST', body);
+        } else {
+            alert('Номер телефона должен начинаться с 7 и содержать 11 цифр');
+        }
+    });
+</script>
+
+</body>
+</html>
